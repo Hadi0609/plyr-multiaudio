@@ -557,6 +557,12 @@ declare namespace Plyr {
     options: number[];
   }
 
+  interface AudioOptions {
+    default: string;
+    onChange?: (track: string) => void;
+    options: string[];
+  }
+
   interface LoopOptions {
     active: boolean;
   }

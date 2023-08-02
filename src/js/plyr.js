@@ -749,19 +749,16 @@ class Plyr {
       return;
     }
 
-    let audioTrack = [!is.empty(input) && input, this.storage.get('audioTrack'), config.selected, config.default].find(
-      (e) => e,
-    );
-
-    let updateStorage = true;
+    const audioTrack = [
+      !is.empty(input) && input,
+      this.storage.get('audioTrack'),
+      config.selected,
+      config.default,
+    ].find((e) => e);
 
     if (!options.includes(audioTrack)) {
-      const value = closest(options, audioTrack);
-      this.debug.warn(`Unsupported audioTrack option: ${audioTrack}, using ${value} instead`);
-      audioTrack = value;
-
-      // Don't update storage if quality is not supported
-      updateStorage = false;
+      this.debug.warn(`Unsupported audioTrack option: ${audioTrack}`);
+      return;
     }
 
     // Update config
@@ -770,17 +767,20 @@ class Plyr {
     // Set audio track
     this.media.audioTrack = audioTrack;
 
-    // Save to storage
-    if (updateStorage) {
-      this.storage.set({ audioTrack });
+    if (is.function(this.config.audioTrack.onChange)) {
+      this.config.audioTrack.onChange(input);
     }
+
+    triggerEvent.call(this, this.media, 'audiotrackchange', false, {
+      audioTrack: input,
+    });
   }
 
   /**
    * Get current audio track
    */
   get audioTrack() {
-    return this.media.audioTrack;
+    return this.config.audioTrack.selected;
   }
 
   /**

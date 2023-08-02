@@ -139,7 +139,10 @@ const controls = {
   // Create hidden text label
   createLabel(key, attr = {}) {
     const text = i18n.get(key, this.config);
-    const attributes = { ...attr, class: [attr.class, this.config.classNames.hidden].filter(Boolean).join(' ') };
+    const attributes = {
+      ...attr,
+      class: [attr.class, this.config.classNames.hidden].filter(Boolean).join(' '),
+    };
 
     return createElement('span', attributes, text);
   },
@@ -1750,6 +1753,11 @@ const controls = {
         container.appendChild(createButton.call(this, 'fullscreen', defaultAttributes));
       }
     });
+
+    // Set audioTracks if available in config
+    if (this.config.audioTrack.options.length) {
+      setAudioTrackMenu.call(this, this.config.audioTrack.options);
+    }
 
     // Set available quality levels
     if (this.isHTML5) {
