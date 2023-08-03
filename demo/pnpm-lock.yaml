@@ -1,0 +1,98 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  '@sentry/browser':
+    specifier: ^5.22.3
+    version: 5.22.3
+  core-js:
+    specifier: ^3.6.5
+    version: 3.6.5
+  custom-event-polyfill:
+    specifier: ^1.0.7
+    version: 1.0.7
+  shr-buttons:
+    specifier: 2.0.3
+    version: 2.0.3
+  url-polyfill:
+    specifier: ^1.1.10
+    version: 1.1.10
+
+packages:
+
+  /@sentry/browser@5.22.3:
+    resolution: {integrity: sha512-2TzE/CoBa5ZkvxJizDdi1Iz1ldmXSJpFQ1mL07PIXBjCt0Wxf+WOuFSj5IP4L40XHfJE5gU8wEvSH0VDR8nXtA==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@sentry/core': 5.22.3
+      '@sentry/types': 5.22.3
+      '@sentry/utils': 5.22.3
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/core@5.22.3:
+    resolution: {integrity: sha512-eGL5uUarw3o4i9QUb9JoFHnhriPpWCaqeaIBB06HUpdcvhrjoowcKZj1+WPec5lFg5XusE35vez7z/FPzmJUDw==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@sentry/hub': 5.22.3
+      '@sentry/minimal': 5.22.3
+      '@sentry/types': 5.22.3
+      '@sentry/utils': 5.22.3
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/hub@5.22.3:
+    resolution: {integrity: sha512-INo47m6N5HFEs/7GMP9cqxOIt7rmRxdERunA3H2L37owjcr77MwHVeeJ9yawRS6FMtbWXplgWTyTIWIYOuqVbw==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@sentry/types': 5.22.3
+      '@sentry/utils': 5.22.3
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/minimal@5.22.3:
+    resolution: {integrity: sha512-HoINpYnVYCpNjn2XIPIlqH5o4BAITpTljXjtAftOx6Hzj+Opjg8tR8PWliyKDvkXPpc4kXK9D6TpEDw8MO0wZA==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@sentry/hub': 5.22.3
+      '@sentry/types': 5.22.3
+      tslib: 1.14.1
+    dev: false
+
+  /@sentry/types@5.22.3:
+    resolution: {integrity: sha512-cv+VWK0YFgCVDvD1/HrrBWOWYG3MLuCUJRBTkV/Opdy7nkdNjhCAJQrEyMM9zX0sac8FKWKOHT0sykNh8KgmYw==}
+    engines: {node: '>=6'}
+    dev: false
+
+  /@sentry/utils@5.22.3:
+    resolution: {integrity: sha512-AHNryXMBvIkIE+GQxTlmhBXD0Ksh+5w1SwM5qi6AttH+1qjWLvV6WB4+4pvVvEoS8t5F+WaVUZPQLmCCWp6zKw==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@sentry/types': 5.22.3
+      tslib: 1.14.1
+    dev: false
+
+  /core-js@3.6.5:
+    resolution: {integrity: sha512-vZVEEwZoIsI+vPEuoF9Iqf5H7/M3eeQqWlQnYa8FSKKePuYTf5MWnxb5SDAzCa60b3JBRS5g9b+Dq7b1y/RCrA==}
+    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+    requiresBuild: true
+    dev: false
+
+  /custom-event-polyfill@1.0.7:
+    resolution: {integrity: sha512-TDDkd5DkaZxZFM8p+1I3yAlvM3rSr1wbrOliG4yJiwinMZN8z/iGL7BTlDkrJcYTmgUSb4ywVCc3ZaUtOtC76w==}
+    dev: false
+
+  /shr-buttons@2.0.3:
+    resolution: {integrity: sha512-sPAgHiw4uaIt9TnxTfyZEedDChcldSVtnBHE44cpe/mSC7rqm4IEKZRLYqnVlTcGM+FSDNBPUNpSf50Q2ntd+w==}
+    dev: false
+
+  /tslib@1.14.1:
+    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
+    dev: false
+
+  /url-polyfill@1.1.10:
+    resolution: {integrity: sha512-vSaPpaRgBrf41+Uky1myiSh6gpcbw8FpwHYnEy0abxndojOBnIs+yh/49gKYFLtUMP9qoNWjn6j9aUVy23Ie2A==}
+    dev: false
