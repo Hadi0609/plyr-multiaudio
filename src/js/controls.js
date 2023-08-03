@@ -902,6 +902,10 @@ const controls = {
           return label;
         }
 
+        if (this.config.audioTrack.showUnrecognizedLabel) {
+          return `Unrecognized (${value})`;
+        }
+
         return `${value}`;
       }
 

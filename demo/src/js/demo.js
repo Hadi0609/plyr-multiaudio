@@ -48,6 +48,7 @@ import sources from "./sources";
         onChange: (e) => {
           console.log(e);
         },
+        showUnrecognizedLabel: true,
       },
       title: "View From A Blue Moon",
       iconUrl: "dist/demo.svg",

@@ -88,10 +88,11 @@ const defaults = {
     options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 4],
   },
 
-  // Audio Tracks (MPEG-DASH)
+  // Audio Tracks
   audioTrack: {
     options: [],
     onChange: null,
+    showUnrecognizedLabel: false,
   },
 
   // Video Tracks (MPEG-DASH)
