@@ -152,9 +152,9 @@ class Plyr {
     }
 
     // Cache original element state for .destroy()
-    const clone = this.media.cloneNode(true);
-    clone.autoplay = false;
-    this.elements.original = clone;
+    // const clone = this.media.cloneNode(true);
+    // clone.autoplay = false;
+    // this.elements.original = clone;
 
     // Set media type based on tag or data attribute
     // Supported: video, audio, vimeo, youtube
