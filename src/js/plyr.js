@@ -485,8 +485,8 @@ class Plyr {
     // Validate input
     const inputIsValid = is.number(input) && input > 0;
 
-    // Set
-    this.media.currentTime = inputIsValid ? Math.min(input, this.duration) : 0;
+    // Set - (-3 after this.duration is because of safezone at the end of video)
+    this.media.currentTime = inputIsValid ? Math.min(input, this.duration - 3) : 0;
 
     // Logging
     this.debug.log(`Seeking to ${this.currentTime} seconds`);
