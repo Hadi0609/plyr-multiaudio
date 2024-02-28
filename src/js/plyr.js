@@ -38,6 +38,8 @@ import { parseUrl } from './utils/urls';
 
 // Plyr instance
 class Plyr {
+  isSeeking = false;
+
   constructor(target, options) {
     this.timers = {};
 
@@ -468,8 +470,14 @@ class Plyr {
    * Fast forward
    * @param {Number} seekTime - how far to fast forward in seconds. Defaults to the config.seekTime
    */
-  forward = (seekTime) => {
-    this.currentTime += is.number(seekTime) ? seekTime : this.config.seekTime;
+  forward = async (seekTime) => {
+    const timeToSeek = this.currentTime + (is.number(seekTime) ? seekTime : this.config.seekTime);
+    if (this.isSeeking || timeToSeek >= this.duration - 21) {
+      return;
+    }
+    this.isSeeking = true;
+    this.currentTime = timeToSeek >= this.duration ? this.duration - 1 : timeToSeek;
+    this.isSeeking = false;
   };
 
   /**
