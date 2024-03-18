@@ -28,8 +28,7 @@ jobs:
         run: pnpm run build
 
       - name: Compress build artifacts
-        run: zip -r build-artifacts.zip ./path/to/your/build/directory
-
+        run: zip -r build-artifacts.zip ./dist
       - name: Get the release information
         id: get_release
         run: echo "UPLOAD_URL=$(gh release view ${{ github.ref_name }} --json uploadUrl -q .uploadUrl)" >> $GITHUB_ENV
