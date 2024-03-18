@@ -1,9 +1,8 @@
 name: Build and Release with PNPM
 
 on:
-  push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+  release:
+    types: [created]
 
 permissions:
   contents: write
@@ -18,8 +17,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
-        with:
-          version: 6.x
 
       - name: Install dependencies with pnpm
         run: pnpm install
@@ -29,16 +26,13 @@ jobs:
 
       - name: Compress build artifacts
         run: zip -r build-artifacts.zip ./dist
-      - name: Get the release information
-        id: get_release
-        run: echo "UPLOAD_URL=$(gh release view ${{ github.ref_name }} --json uploadUrl -q .uploadUrl)" >> $GITHUB_ENV
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ env.UPLOAD_URL }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./build-artifacts.zip
           asset_name: build-artifacts.zip
           asset_content_type: application/zip
