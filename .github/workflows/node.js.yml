@@ -5,30 +5,44 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: 6.x # You can adjust or omit this based on your packageManager field
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 6.x # Omit or adjust based on your packageManager field
 
-    - name: Install dependencies with pnpm
-      run: pnpm install
+      - name: Install dependencies with pnpm
+        run: pnpm install
 
-    - name: Build the project
-      run: pnpm run build
+      - name: Build the project
+        run: pnpm run build
 
-    - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+      - name: Compress build artifacts
+        run: zip -r build-artifacts.zip ./dist
+
+      - name: Get the release ID
+        id: get_release
+        run: |
+          echo "RELEASE_ID=$(gh release view ${{ github.ref_name }} --json id -q .id)" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ env.RELEASE_ID }}/assets{?name,label}
+          asset_path: ./build-artifacts.zip
+          asset_name: build-artifacts.zip
+          asset_content_type: application/zip
