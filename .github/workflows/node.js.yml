@@ -28,7 +28,7 @@ jobs:
         run: pnpm run build
 
       - name: Compress build artifacts
-        run: zip -r build-artifacts.zip ./path/to/your/build/directory
+        run: zip -r build-artifacts.zip ./dist
 
       - name: Get the release information
         id: get_release
