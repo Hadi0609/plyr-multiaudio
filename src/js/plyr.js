@@ -52,12 +52,14 @@ class Plyr {
     this.touch = support.touch;
 
     // Set the media element
-    if (window.dashjs && target instanceof window.dashjs.constructor) {
-      this.media = target.getVideoElement();
-      this.dash = target;
-    } else {
-      this.media = target;
-    }
+    // if (window.dashjs && target instanceof window.dashjs.constructor) {
+    //   this.media = target.getVideoElement();
+    //   this.dash = target;
+    // } else {
+    //   this.media = target;
+    // }
+
+    this.media = target;
 
     // String selector passed
     if (is.string(this.media)) {
