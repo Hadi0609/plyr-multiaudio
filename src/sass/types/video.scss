@@ -111,8 +111,8 @@ $embed-padding: (math.div(100, 16) * 9);
   transition: 0.3s;
   z-index: 2;
 
-  // Offset icon to make the play button look right
-  svg {
+  // Offset play icon to make the play button look right
+  .icon--not-pressed svg {
     left: 2px;
     position: relative;
   }
@@ -123,13 +123,14 @@ $embed-padding: (math.div(100, 16) * 9);
   }
 }
 
-.plyr--playing .plyr__control--overlaid {
-  opacity: 0;
-  visibility: hidden;
-}
-
 .plyr--full-ui.plyr--video .plyr__control--overlaid {
   display: block;
+}
+
+// Hide the big play button when controls are hidden
+.plyr--video.plyr--hide-controls .plyr__control--overlaid {
+  opacity: 0;
+  pointer-events: none;
 }
 
 // Video range inputs
@@ -165,4 +166,149 @@ $embed-padding: (math.div(100, 16) * 9);
 // Progress
 .plyr--video .plyr__progress__buffer {
   color: $plyr-video-progress-buffered-background;
+}
+
+// Seek overlay buttons (rewind/forward)
+.plyr__control--seek-overlay {
+  background: transparent;
+  border: 0;
+  border-radius: 100%;
+  color: #fff;
+  cursor: pointer;
+  display: none;
+  opacity: 0.7;
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 2;
+
+  &--rewind {
+    left: 25%;
+    transform: translate(-50%, -50%);
+  }
+
+  &--forward {
+    right: 25%;
+    transform: translate(50%, -50%);
+  }
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &--rewind:hover,
+  &--rewind:focus {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  &--forward:hover,
+  &--forward:focus {
+    transform: translate(50%, -50%) scale(1.1);
+  }
+
+  .plyr__seek-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 55px;
+    height: 55px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      margin-top: 2px;
+    }
+  }
+}
+
+.plyr--full-ui.plyr--video .plyr__control--seek-overlay {
+  display: block;
+}
+
+// Only show seek overlay buttons when controls are visible (not hidden)
+.plyr--video.plyr--hide-controls .plyr__control--seek-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+// Hide overlay buttons and play button when seek indicator is active (prevent overlap)
+.plyr--video.plyr--seek-active .plyr__control--seek-overlay,
+.plyr--video.plyr--seek-active .plyr__control--overlaid {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+// Seek indicator (double-tap/double-click overlay)
+.plyr__seek-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+
+  &--active {
+    animation: plyr-seek-indicator-fade 0.8s ease forwards;
+  }
+
+  &--rewind {
+    left: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+  }
+
+  &--forward {
+    right: 0;
+    background: radial-gradient(circle at 70% 50%, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+  }
+
+  .plyr__seek-indicator__icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+
+    svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    &--rewind svg {
+      animation: plyr-seek-arrow-rotate-left 0.4s ease;
+    }
+
+    &--forward svg {
+      animation: plyr-seek-arrow-rotate-right 0.4s ease;
+    }
+
+    span {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      margin-top: 2px;
+    }
+  }
 }

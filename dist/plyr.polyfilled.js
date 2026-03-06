@@ -2419,8 +2419,11 @@ typeof navigator === "object" && (function (global, factory) {
         case 'play-large':
           attributes.class += ` ${this.config.classNames.control}--overlaid`;
           type = 'play';
+          props.toggle = true;
           props.label = 'play';
+          props.labelPressed = 'pause';
           props.icon = 'play';
+          props.iconPressed = 'pause';
           break;
         default:
           if (is.empty(props.label)) {
@@ -3054,19 +3057,19 @@ typeof navigator === "object" && (function (global, factory) {
           if (!is.element(this.elements.settings.panels.loop)) {
               return;
           }
-           const options = ['start', 'end', 'all', 'reset'];
+            const options = ['start', 'end', 'all', 'reset'];
           const list = this.elements.settings.panels.loop.querySelector('[role="menu"]');
-           // Show the pane and tab
+            // Show the pane and tab
           toggleHidden(this.elements.settings.buttons.loop, false);
           toggleHidden(this.elements.settings.panels.loop, false);
-           // Toggle the pane and tab
+            // Toggle the pane and tab
           const toggle = !is.empty(this.loop.options);
           controls.toggleMenuButton.call(this, 'loop', toggle);
-           // Empty the menu
+            // Empty the menu
           emptyElement(list);
-           options.forEach(option => {
+            options.forEach(option => {
               const item = createElement('li');
-               const button = createElement(
+                const button = createElement(
                   'button',
                   extend(getAttributesFromSelector(this.config.selectors.buttons.loop), {
                       type: 'button',
@@ -3075,11 +3078,11 @@ typeof navigator === "object" && (function (global, factory) {
                   }),
                   i18n.get(option, this.config)
               );
-               if (['start', 'end'].includes(option)) {
+                if (['start', 'end'].includes(option)) {
                   const badge = controls.createBadge.call(this, '00:00');
                   button.appendChild(badge);
               }
-               item.appendChild(button);
+                item.appendChild(button);
               list.appendChild(item);
           });
       }, */
@@ -3419,6 +3422,101 @@ typeof navigator === "object" && (function (global, factory) {
 
       // Set attribute
       button.setAttribute('href', this.download);
+    },
+    // Create SVG element for seek overlay icons
+    createSeekSvg(direction) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('xmlns', ns);
+      const path = document.createElementNS(ns, 'path');
+      if (direction === 'rewind') {
+        path.setAttribute('d', 'M12.5 3C7.26 3 3 7.26 3 12.5S7.26 22 12.5 22c4.5 0 8.27-3.14 9.24-7.36l-1.93-.51C18.96 17.83 15.99 20 12.5 20 8.36 20 5 16.64 5 12.5S8.36 5 12.5 5c2.07 0 3.93.84 5.29 2.19L14 11h8V3l-2.64 2.64A9.47 9.47 0 0 0 12.5 3z');
+        path.setAttribute('transform', 'scale(-1,1) translate(-24,0)');
+      } else {
+        path.setAttribute('d', 'M12.5 3C7.26 3 3 7.26 3 12.5S7.26 22 12.5 22c4.5 0 8.27-3.14 9.24-7.36l-1.93-.51C18.96 17.83 15.99 20 12.5 20 8.36 20 5 16.64 5 12.5S8.36 5 12.5 5c2.07 0 3.93.84 5.29 2.19L14 11h8V3l-2.64 2.64A9.47 9.47 0 0 0 12.5 3z');
+      }
+      svg.appendChild(path);
+      return svg;
+    },
+    // Create the seek overlay buttons (rewind/forward on video surface)
+    createSeekOverlayButtons() {
+      if (!this.isVideo || !this.config.doubleClickToSeek) {
+        return;
+      }
+      const {
+        seekTime
+      } = this.config;
+
+      // Rewind overlay button
+      const rewindBtn = createElement('button', {
+        type: 'button',
+        class: `${this.config.classNames.control} ${this.config.classNames.seekOverlayButton} ${this.config.classNames.seekOverlayButton}--rewind`,
+        'data-plyr': 'seek-overlay-rewind',
+        'aria-label': `Rewind ${seekTime}s`
+      });
+      const rewindIcon = createElement('div', {
+        class: 'plyr__seek-icon'
+      });
+      rewindIcon.appendChild(controls.createSeekSvg('rewind'));
+      rewindIcon.appendChild(createElement('span', {}, String(seekTime)));
+      rewindBtn.appendChild(rewindIcon);
+
+      // Forward overlay button
+      const forwardBtn = createElement('button', {
+        type: 'button',
+        class: `${this.config.classNames.control} ${this.config.classNames.seekOverlayButton} ${this.config.classNames.seekOverlayButton}--forward`,
+        'data-plyr': 'seek-overlay-forward',
+        'aria-label': `Forward ${seekTime}s`
+      });
+      const forwardIcon = createElement('div', {
+        class: 'plyr__seek-icon'
+      });
+      forwardIcon.appendChild(controls.createSeekSvg('forward'));
+      forwardIcon.appendChild(createElement('span', {}, String(seekTime)));
+      forwardBtn.appendChild(forwardIcon);
+      this.elements.container.appendChild(rewindBtn);
+      this.elements.container.appendChild(forwardBtn);
+      this.elements.buttons.seekOverlayRewind = rewindBtn;
+      this.elements.buttons.seekOverlayForward = forwardBtn;
+    },
+    // Create the seek indicator overlays (shown on double-tap/double-click)
+    createSeekIndicators() {
+      if (!this.isVideo || !this.config.doubleClickToSeek) {
+        return;
+      }
+      const {
+        seekTime
+      } = this.config;
+      const className = this.config.classNames.seekIndicator;
+
+      // Rewind indicator
+      const rewindIndicator = createElement('div', {
+        class: `${className} ${className}--rewind`
+      });
+      const rewindInner = createElement('div', {
+        class: `${className}__icon ${className}__icon--rewind`
+      });
+      rewindInner.appendChild(controls.createSeekSvg('rewind'));
+      rewindInner.appendChild(createElement('span', {}, String(seekTime)));
+      rewindIndicator.appendChild(rewindInner);
+
+      // Forward indicator
+      const forwardIndicator = createElement('div', {
+        class: `${className} ${className}--forward`
+      });
+      const forwardInner = createElement('div', {
+        class: `${className}__icon ${className}__icon--forward`
+      });
+      forwardInner.appendChild(controls.createSeekSvg('forward'));
+      forwardInner.appendChild(createElement('span', {}, String(seekTime)));
+      forwardIndicator.appendChild(forwardInner);
+      this.elements.container.appendChild(rewindIndicator);
+      this.elements.container.appendChild(forwardIndicator);
+      this.elements.seekIndicators = {
+        rewind: rewindIndicator,
+        forward: forwardIndicator
+      };
     },
     // Build the default HTML
     create(data) {
@@ -4382,6 +4480,8 @@ typeof navigator === "object" && (function (global, factory) {
     hideControls: true,
     // Reset to start when playback ended
     resetOnEnd: false,
+    // Enable double-click/double-tap to seek (YouTube-style)
+    doubleClickToSeek: true,
     // Disable the standard context menu
     disableContextMenu: true,
     // Sprite (for icons)
@@ -4590,7 +4690,9 @@ typeof navigator === "object" && (function (global, factory) {
         pip: '[data-plyr="pip"]',
         airplay: '[data-plyr="airplay"]',
         settings: '[data-plyr="settings"]',
-        loop: '[data-plyr="loop"]'
+        loop: '[data-plyr="loop"]',
+        seekOverlayRewind: '[data-plyr="seek-overlay-rewind"]',
+        seekOverlayForward: '[data-plyr="seek-overlay-forward"]'
       },
       inputs: {
         seek: '[data-plyr="seek"]',
@@ -4651,6 +4753,8 @@ typeof navigator === "object" && (function (global, factory) {
         enabled: 'plyr--captions-enabled',
         active: 'plyr--captions-active'
       },
+      seekIndicator: 'plyr__seek-indicator',
+      seekOverlayButton: 'plyr__control--seek-overlay',
       fullscreen: {
         enabled: 'plyr--fullscreen-enabled',
         fallback: 'plyr--fullscreen-fallback'
@@ -4973,6 +5077,19 @@ typeof navigator === "object" && (function (global, factory) {
         if (is.element(this.player.elements.controls) && this.player.elements.controls.contains(event.target)) {
           return;
         }
+
+        // If double-click-to-seek is enabled, skip fullscreen for left/right zones
+        if (this.player.config.doubleClickToSeek && this.player.isVideo) {
+          const wrapper = this.player.elements.wrapper;
+          if (is.element(wrapper)) {
+            const rect = wrapper.getBoundingClientRect();
+            const relativeX = (event.clientX - rect.left) / rect.width;
+            // Left zone (0-33%) or right zone (66-100%) — do not toggle fullscreen
+            if (relativeX < 0.33 || relativeX > 0.66) {
+              return;
+            }
+          }
+        }
         this.player.listeners.proxy(event, this.toggle, 'fullscreen');
       });
 
@@ -5106,6 +5223,10 @@ typeof navigator === "object" && (function (global, factory) {
       if (!is.element(this.elements.controls)) {
         // Inject custom controls
         controls.inject.call(this);
+
+        // Create seek overlay buttons and indicators (must exist before binding listeners)
+        controls.createSeekOverlayButtons.call(this);
+        controls.createSeekIndicators.call(this);
 
         // Re-attach control listeners
         this.listeners.controls();
@@ -5376,6 +5497,9 @@ typeof navigator === "object" && (function (global, factory) {
           on.call(player, elements.container, 'keydown keyup', this.handleKey, false);
         }
 
+        // Timestamp for when controls were last hidden by a touch tap
+        let touchControlsHideTime = 0;
+
         // Toggle controls on mouse events and entering fullscreen
         on.call(player, elements.container, 'mousemove mouseleave touchstart touchmove enterfullscreen exitfullscreen', event => {
           const {
@@ -5392,6 +5516,20 @@ typeof navigator === "object" && (function (global, factory) {
           const show = ['touchstart', 'touchmove', 'mousemove'].includes(event.type);
           let delay = 0;
           if (show) {
+            // On touch devices, if controls are already visible and tap is not on the controls bar, hide them
+            if (event.type === 'touchstart' && player.touch && !hasClass(elements.container, player.config.classNames.hideControls) && !player.paused && !(is.element(controlsElement) && controlsElement.contains(event.target)) && !event.target.closest(`.${player.config.classNames.control}--overlaid`) && !event.target.closest(`.${player.config.classNames.seekOverlayButton}`)) {
+              clearTimeout(timers.controls);
+              ui.toggleControls.call(player, false);
+              touchControlsHideTime = Date.now();
+              return;
+            }
+
+            // Suppress touchmove and synthetic mousemove events from re-showing controls
+            // right after a touch-hide. Mobile browsers fire mousemove after touchstart which
+            // would otherwise immediately re-show the controls that were just hidden.
+            if ((event.type === 'touchmove' || event.type === 'mousemove') && Date.now() - touchControlsHideTime < 500) {
+              return;
+            }
             ui.toggleControls.call(player, true);
             // Use longer timeout for touch devices
             delay = player.touch ? 3000 : 2000;
@@ -5541,6 +5679,141 @@ typeof navigator === "object" && (function (global, factory) {
               }, 'play');
             }
           });
+        }
+
+        // Double-click/double-tap seek zones
+        if (player.supported.ui && player.config.doubleClickToSeek && !player.isAudio) {
+          const wrapper = getElement.call(player, `.${player.config.classNames.video}`);
+          if (is.element(wrapper)) {
+            // State for double-tap detection and accumulation
+            let lastTapTime = 0;
+            let lastTapZone = null;
+            let accumulatedSeek = 0;
+            let seekIndicatorTimer = null;
+            const showSeekIndicator = (direction, totalSeek) => {
+              const indicators = player.elements.seekIndicators;
+              if (!indicators) return;
+              const indicator = indicators[direction];
+              if (!is.element(indicator)) return;
+
+              // Update the seek time text
+              const span = indicator.querySelector('span');
+              if (span) {
+                span.textContent = String(totalSeek);
+              }
+
+              // Reset animation
+              const className = player.config.classNames.seekIndicator;
+              indicator.classList.remove(`${className}--active`);
+              // Force reflow to restart animation
+              void indicator.offsetWidth;
+              indicator.classList.add(`${className}--active`);
+
+              // Also reset the arrow animation
+              const iconEl = indicator.querySelector(`.${className}__icon`);
+              if (iconEl) {
+                const svg = iconEl.querySelector('svg');
+                if (svg) {
+                  const clone = svg.cloneNode(true);
+                  svg.parentNode.replaceChild(clone, svg);
+                }
+              }
+            };
+            const handleSeekZone = event => {
+              const rect = wrapper.getBoundingClientRect();
+              const relativeX = (event.clientX - rect.left) / rect.width;
+              let zone = 'center';
+              if (relativeX < 0.33) zone = 'left';else if (relativeX > 0.66) zone = 'right';
+
+              // Only handle left/right zones for seeking
+              if (zone === 'center') return;
+              const now = Date.now();
+              const direction = zone === 'left' ? 'rewind' : 'forward';
+
+              // Check if this is a continuation of a previous double-tap in same zone
+              if (lastTapZone === zone && now - lastTapTime < 600) {
+                accumulatedSeek += player.config.seekTime;
+              } else {
+                accumulatedSeek = player.config.seekTime;
+              }
+              lastTapTime = now;
+              lastTapZone = zone;
+
+              // Perform the seek
+              player.lastSeekTime = Date.now();
+              if (direction === 'rewind') {
+                player.rewind();
+              } else {
+                player.forward();
+              }
+
+              // Show indicator and hide overlay buttons to prevent overlap
+              showSeekIndicator(direction, accumulatedSeek);
+              elements.container.classList.add('plyr--seek-active');
+
+              // Clear accumulated seek and seeking state after inactivity
+              clearTimeout(seekIndicatorTimer);
+              seekIndicatorTimer = setTimeout(() => {
+                accumulatedSeek = 0;
+                lastTapZone = null;
+                elements.container.classList.remove('plyr--seek-active');
+              }, 800);
+            };
+
+            // Desktop double-click handler (skip on touch devices to avoid double-seeking)
+            on.call(player, elements.container, 'dblclick', event => {
+              // On touch devices, the touchend handler already handles double-tap seeking.
+              // The browser also fires a synthetic dblclick from touch events, which would
+              // cause the seek to trigger twice (20s instead of 10s). Skip here for touch.
+              if (player.touch) {
+                return;
+              }
+              const targets = [elements.container, wrapper];
+              if (!targets.includes(event.target) && !wrapper.contains(event.target)) {
+                return;
+              }
+
+              // Ignore if inside controls
+              if (is.element(elements.controls) && elements.controls.contains(event.target)) {
+                return;
+              }
+              handleSeekZone(event);
+            });
+
+            // Touch double-tap handler
+            let lastTouchTime = 0;
+            on.call(player, elements.container, 'touchend', event => {
+              const targets = [elements.container, wrapper];
+              if (!targets.includes(event.target) && !wrapper.contains(event.target)) {
+                return;
+              }
+
+              // Ignore if inside controls
+              if (is.element(elements.controls) && elements.controls.contains(event.target)) {
+                return;
+              }
+
+              // Ignore taps on seek overlay buttons (let button click handlers handle them)
+              if (event.target.closest(`.${player.config.classNames.seekOverlayButton}`)) {
+                return;
+              }
+              const now = Date.now();
+              const touch = event.changedTouches[0];
+              const touchX = touch.clientX;
+              if (now - lastTouchTime < 300) {
+                // This is a double-tap
+                const rect = wrapper.getBoundingClientRect();
+                const relativeX = (touchX - rect.left) / rect.width;
+                if (relativeX < 0.33 || relativeX > 0.66) {
+                  event.preventDefault();
+                  handleSeekZone({
+                    clientX: touchX
+                  });
+                }
+              }
+              lastTouchTime = now;
+            });
+          }
         }
 
         // Disable right click
@@ -5701,6 +5974,18 @@ typeof navigator === "object" && (function (global, factory) {
         // Rewind
         this.bind(elements.buttons.fastForward, 'click', () => {
           // Record seek time so we can prevent hiding controls for a few seconds after fast forward
+          player.lastSeekTime = Date.now();
+          player.forward();
+        }, 'fastForward');
+
+        // Seek overlay rewind button
+        this.bind(elements.buttons.seekOverlayRewind, 'click', () => {
+          player.lastSeekTime = Date.now();
+          player.rewind();
+        }, 'rewind');
+
+        // Seek overlay forward button
+        this.bind(elements.buttons.seekOverlayForward, 'click', () => {
           player.lastSeekTime = Date.now();
           player.forward();
         }, 'fastForward');
@@ -9623,7 +9908,7 @@ typeof navigator === "object" && (function (global, factory) {
 
       // Set default to be a true toggle
       /* const type = ['start', 'end', 'all', 'none', 'toggle'].includes(input) ? input : 'toggle';
-           switch (type) {
+            switch (type) {
               case 'start':
                   if (this.config.loop.end && this.config.loop.end <= this.currentTime) {
                       this.config.loop.end = null;
@@ -9631,20 +9916,20 @@ typeof navigator === "object" && (function (global, factory) {
                   this.config.loop.start = this.currentTime;
                   // this.config.loop.indicator.start = this.elements.display.played.value;
                   break;
-               case 'end':
+                case 'end':
                   if (this.config.loop.start >= this.currentTime) {
                       return this;
                   }
                   this.config.loop.end = this.currentTime;
                   // this.config.loop.indicator.end = this.elements.display.played.value;
                   break;
-               case 'all':
+                case 'all':
                   this.config.loop.start = 0;
                   this.config.loop.end = this.duration - 2;
                   this.config.loop.indicator.start = 0;
                   this.config.loop.indicator.end = 100;
                   break;
-               case 'toggle':
+                case 'toggle':
                   if (this.config.loop.active) {
                       this.config.loop.start = 0;
                       this.config.loop.end = null;
@@ -9653,7 +9938,7 @@ typeof navigator === "object" && (function (global, factory) {
                       this.config.loop.end = this.duration - 2;
                   }
                   break;
-               default:
+                default:
                   this.config.loop.start = 0;
                   this.config.loop.end = null;
                   break;

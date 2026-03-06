@@ -6,7 +6,7 @@ import controls from './controls';
 import ui from './ui';
 import { repaint } from './utils/animation';
 import browser from './utils/browser';
-import { getElement, getElements, matches, toggleClass } from './utils/elements';
+import { getElement, getElements, hasClass, matches, toggleClass } from './utils/elements';
 import { off, on, once, toggleListener, triggerEvent } from './utils/events';
 import is from './utils/is';
 import { silencePromise } from './utils/promise';
@@ -219,6 +219,9 @@ class Listeners {
       on.call(player, elements.container, 'keydown keyup', this.handleKey, false);
     }
 
+    // Timestamp for when controls were last hidden by a touch tap
+    let touchControlsHideTime = 0;
+
     // Toggle controls on mouse events and entering fullscreen
     on.call(
       player,
@@ -238,6 +241,32 @@ class Listeners {
         let delay = 0;
 
         if (show) {
+          // On touch devices, if controls are already visible and tap is not on the controls bar, hide them
+          if (
+            event.type === 'touchstart' &&
+            player.touch &&
+            !hasClass(elements.container, player.config.classNames.hideControls) &&
+            !player.paused &&
+            !(is.element(controlsElement) && controlsElement.contains(event.target)) &&
+            !event.target.closest(`.${player.config.classNames.control}--overlaid`) &&
+            !event.target.closest(`.${player.config.classNames.seekOverlayButton}`)
+          ) {
+            clearTimeout(timers.controls);
+            ui.toggleControls.call(player, false);
+            touchControlsHideTime = Date.now();
+            return;
+          }
+
+          // Suppress touchmove and synthetic mousemove events from re-showing controls
+          // right after a touch-hide. Mobile browsers fire mousemove after touchstart which
+          // would otherwise immediately re-show the controls that were just hidden.
+          if (
+            (event.type === 'touchmove' || event.type === 'mousemove') &&
+            Date.now() - touchControlsHideTime < 500
+          ) {
+            return;
+          }
+
           ui.toggleControls.call(player, true);
           // Use longer timeout for touch devices
           delay = player.touch ? 3000 : 2000;
@@ -399,6 +428,154 @@ class Listeners {
           );
         }
       });
+    }
+
+    // Double-click/double-tap seek zones
+    if (player.supported.ui && player.config.doubleClickToSeek && !player.isAudio) {
+      const wrapper = getElement.call(player, `.${player.config.classNames.video}`);
+
+      if (is.element(wrapper)) {
+        // State for double-tap detection and accumulation
+        let lastTapTime = 0;
+        let lastTapZone = null;
+        let accumulatedSeek = 0;
+        let seekIndicatorTimer = null;
+
+        const showSeekIndicator = (direction, totalSeek) => {
+          const indicators = player.elements.seekIndicators;
+          if (!indicators) return;
+
+          const indicator = indicators[direction];
+          if (!is.element(indicator)) return;
+
+          // Update the seek time text
+          const span = indicator.querySelector('span');
+          if (span) {
+            span.textContent = String(totalSeek);
+          }
+
+          // Reset animation
+          const className = player.config.classNames.seekIndicator;
+          indicator.classList.remove(`${className}--active`);
+          // Force reflow to restart animation
+          void indicator.offsetWidth;
+          indicator.classList.add(`${className}--active`);
+
+          // Also reset the arrow animation
+          const iconEl = indicator.querySelector(`.${className}__icon`);
+          if (iconEl) {
+            const svg = iconEl.querySelector('svg');
+            if (svg) {
+              const clone = svg.cloneNode(true);
+              svg.parentNode.replaceChild(clone, svg);
+            }
+          }
+        };
+
+        const handleSeekZone = (event) => {
+          const rect = wrapper.getBoundingClientRect();
+          const relativeX = (event.clientX - rect.left) / rect.width;
+
+          let zone = 'center';
+          if (relativeX < 0.33) zone = 'left';
+          else if (relativeX > 0.66) zone = 'right';
+
+          // Only handle left/right zones for seeking
+          if (zone === 'center') return;
+
+          const now = Date.now();
+          const direction = zone === 'left' ? 'rewind' : 'forward';
+
+          // Check if this is a continuation of a previous double-tap in same zone
+          if (lastTapZone === zone && now - lastTapTime < 600) {
+            accumulatedSeek += player.config.seekTime;
+          } else {
+            accumulatedSeek = player.config.seekTime;
+          }
+
+          lastTapTime = now;
+          lastTapZone = zone;
+
+          // Perform the seek
+          player.lastSeekTime = Date.now();
+          if (direction === 'rewind') {
+            player.rewind();
+          } else {
+            player.forward();
+          }
+
+          // Show indicator and hide overlay buttons to prevent overlap
+          showSeekIndicator(direction, accumulatedSeek);
+          elements.container.classList.add('plyr--seek-active');
+
+          // Clear accumulated seek and seeking state after inactivity
+          clearTimeout(seekIndicatorTimer);
+          seekIndicatorTimer = setTimeout(() => {
+            accumulatedSeek = 0;
+            lastTapZone = null;
+            elements.container.classList.remove('plyr--seek-active');
+          }, 800);
+        };
+
+        // Desktop double-click handler (skip on touch devices to avoid double-seeking)
+        on.call(player, elements.container, 'dblclick', (event) => {
+          // On touch devices, the touchend handler already handles double-tap seeking.
+          // The browser also fires a synthetic dblclick from touch events, which would
+          // cause the seek to trigger twice (20s instead of 10s). Skip here for touch.
+          if (player.touch) {
+            return;
+          }
+
+          const targets = [elements.container, wrapper];
+          if (!targets.includes(event.target) && !wrapper.contains(event.target)) {
+            return;
+          }
+
+          // Ignore if inside controls
+          if (is.element(elements.controls) && elements.controls.contains(event.target)) {
+            return;
+          }
+
+          handleSeekZone(event);
+        });
+
+        // Touch double-tap handler
+        let lastTouchTime = 0;
+
+        on.call(player, elements.container, 'touchend', (event) => {
+          const targets = [elements.container, wrapper];
+          if (!targets.includes(event.target) && !wrapper.contains(event.target)) {
+            return;
+          }
+
+          // Ignore if inside controls
+          if (is.element(elements.controls) && elements.controls.contains(event.target)) {
+            return;
+          }
+
+          // Ignore taps on seek overlay buttons (let button click handlers handle them)
+          if (event.target.closest(`.${player.config.classNames.seekOverlayButton}`)) {
+            return;
+          }
+
+          const now = Date.now();
+          const touch = event.changedTouches[0];
+          const touchX = touch.clientX;
+
+          if (now - lastTouchTime < 300) {
+            // This is a double-tap
+            const rect = wrapper.getBoundingClientRect();
+            const relativeX = (touchX - rect.left) / rect.width;
+
+            if (relativeX < 0.33 || relativeX > 0.66) {
+              event.preventDefault();
+              handleSeekZone({ clientX: touchX });
+            }
+          }
+
+          lastTouchTime = now;
+        });
+      }
     }
 
     // Disable right click
@@ -578,6 +755,28 @@ class Listeners {
       'click',
       () => {
         // Record seek time so we can prevent hiding controls for a few seconds after fast forward
+        player.lastSeekTime = Date.now();
+        player.forward();
+      },
+      'fastForward',
+    );
+
+    // Seek overlay rewind button
+    this.bind(
+      elements.buttons.seekOverlayRewind,
+      'click',
+      () => {
+        player.lastSeekTime = Date.now();
+        player.rewind();
+      },
+      'rewind',
+    );
+
+    // Seek overlay forward button
+    this.bind(
+      elements.buttons.seekOverlayForward,
+      'click',
+      () => {
         player.lastSeekTime = Date.now();
         player.forward();
       },

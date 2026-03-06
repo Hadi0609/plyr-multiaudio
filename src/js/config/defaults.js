@@ -54,6 +54,9 @@ const defaults = {
   // Reset to start when playback ended
   resetOnEnd: false,
 
+  // Enable double-click/double-tap to seek (YouTube-style)
+  doubleClickToSeek: true,
+
   // Disable the standard context menu
   disableContextMenu: true,
 
@@ -334,6 +337,8 @@ const defaults = {
       airplay: '[data-plyr="airplay"]',
       settings: '[data-plyr="settings"]',
       loop: '[data-plyr="loop"]',
+      seekOverlayRewind: '[data-plyr="seek-overlay-rewind"]',
+      seekOverlayForward: '[data-plyr="seek-overlay-forward"]',
     },
     inputs: {
       seek: '[data-plyr="seek"]',
@@ -394,6 +399,8 @@ const defaults = {
       enabled: 'plyr--captions-enabled',
       active: 'plyr--captions-active',
     },
+    seekIndicator: 'plyr__seek-indicator',
+    seekOverlayButton: 'plyr__control--seek-overlay',
     fullscreen: {
       enabled: 'plyr--fullscreen-enabled',
       fallback: 'plyr--fullscreen-fallback',

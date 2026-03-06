@@ -49,6 +49,19 @@ class Fullscreen {
         return;
       }
 
+      // If double-click-to-seek is enabled, skip fullscreen for left/right zones
+      if (this.player.config.doubleClickToSeek && this.player.isVideo) {
+        const wrapper = this.player.elements.wrapper;
+        if (is.element(wrapper)) {
+          const rect = wrapper.getBoundingClientRect();
+          const relativeX = (event.clientX - rect.left) / rect.width;
+          // Left zone (0-33%) or right zone (66-100%) — do not toggle fullscreen
+          if (relativeX < 0.33 || relativeX > 0.66) {
+            return;
+          }
+        }
+      }
+
       this.player.listeners.proxy(event, this.toggle, 'fullscreen');
     });
 

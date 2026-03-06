@@ -48,6 +48,10 @@ const ui = {
       // Inject custom controls
       controls.inject.call(this);
 
+      // Create seek overlay buttons and indicators (must exist before binding listeners)
+      controls.createSeekOverlayButtons.call(this);
+      controls.createSeekIndicators.call(this);
+
       // Re-attach control listeners
       this.listeners.controls();
     }

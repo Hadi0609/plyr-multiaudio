@@ -1,98 +1,112 @@
-lockfileVersion: '6.0'
+lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@sentry/browser':
-    specifier: ^5.22.3
-    version: 5.22.3
-  core-js:
-    specifier: ^3.6.5
-    version: 3.6.5
-  custom-event-polyfill:
-    specifier: ^1.0.7
-    version: 1.0.7
-  shr-buttons:
-    specifier: 2.0.3
-    version: 2.0.3
-  url-polyfill:
-    specifier: ^1.1.10
-    version: 1.1.10
+importers:
+
+  .:
+    dependencies:
+      '@sentry/browser':
+        specifier: ^5.22.3
+        version: 5.30.0
+      core-js:
+        specifier: ^3.6.5
+        version: 3.48.0
+      custom-event-polyfill:
+        specifier: ^1.0.7
+        version: 1.0.7
+      shr-buttons:
+        specifier: 2.0.3
+        version: 2.0.3
+      url-polyfill:
+        specifier: ^1.1.10
+        version: 1.1.14
 
 packages:
 
-  /@sentry/browser@5.22.3:
-    resolution: {integrity: sha512-2TzE/CoBa5ZkvxJizDdi1Iz1ldmXSJpFQ1mL07PIXBjCt0Wxf+WOuFSj5IP4L40XHfJE5gU8wEvSH0VDR8nXtA==}
+  '@sentry/browser@5.30.0':
+    resolution: {integrity: sha512-rOb58ZNVJWh1VuMuBG1mL9r54nZqKeaIlwSlvzJfc89vyfd7n6tQ1UXMN383QBz/MS5H5z44Hy5eE+7pCrYAfw==}
     engines: {node: '>=6'}
-    dependencies:
-      '@sentry/core': 5.22.3
-      '@sentry/types': 5.22.3
-      '@sentry/utils': 5.22.3
-      tslib: 1.14.1
-    dev: false
 
-  /@sentry/core@5.22.3:
-    resolution: {integrity: sha512-eGL5uUarw3o4i9QUb9JoFHnhriPpWCaqeaIBB06HUpdcvhrjoowcKZj1+WPec5lFg5XusE35vez7z/FPzmJUDw==}
+  '@sentry/core@5.30.0':
+    resolution: {integrity: sha512-TmfrII8w1PQZSZgPpUESqjB+jC6MvZJZdLtE/0hZ+SrnKhW3x5WlYLvTXZpcWePYBku7rl2wn1RZu6uT0qCTeg==}
     engines: {node: '>=6'}
-    dependencies:
-      '@sentry/hub': 5.22.3
-      '@sentry/minimal': 5.22.3
-      '@sentry/types': 5.22.3
-      '@sentry/utils': 5.22.3
-      tslib: 1.14.1
-    dev: false
 
-  /@sentry/hub@5.22.3:
-    resolution: {integrity: sha512-INo47m6N5HFEs/7GMP9cqxOIt7rmRxdERunA3H2L37owjcr77MwHVeeJ9yawRS6FMtbWXplgWTyTIWIYOuqVbw==}
+  '@sentry/hub@5.30.0':
+    resolution: {integrity: sha512-2tYrGnzb1gKz2EkMDQcfLrDTvmGcQPuWxLnJKXJvYTQDGLlEvi2tWz1VIHjunmOvJrB5aIQLhm+dcMRwFZDCqQ==}
     engines: {node: '>=6'}
-    dependencies:
-      '@sentry/types': 5.22.3
-      '@sentry/utils': 5.22.3
-      tslib: 1.14.1
-    dev: false
 
-  /@sentry/minimal@5.22.3:
-    resolution: {integrity: sha512-HoINpYnVYCpNjn2XIPIlqH5o4BAITpTljXjtAftOx6Hzj+Opjg8tR8PWliyKDvkXPpc4kXK9D6TpEDw8MO0wZA==}
+  '@sentry/minimal@5.30.0':
+    resolution: {integrity: sha512-BwWb/owZKtkDX+Sc4zCSTNcvZUq7YcH3uAVlmh/gtR9rmUvbzAA3ewLuB3myi4wWRAMEtny6+J/FN/x+2wn9Xw==}
     engines: {node: '>=6'}
-    dependencies:
-      '@sentry/hub': 5.22.3
-      '@sentry/types': 5.22.3
-      tslib: 1.14.1
-    dev: false
 
-  /@sentry/types@5.22.3:
-    resolution: {integrity: sha512-cv+VWK0YFgCVDvD1/HrrBWOWYG3MLuCUJRBTkV/Opdy7nkdNjhCAJQrEyMM9zX0sac8FKWKOHT0sykNh8KgmYw==}
+  '@sentry/types@5.30.0':
+    resolution: {integrity: sha512-R8xOqlSTZ+htqrfteCWU5Nk0CDN5ApUTvrlvBuiH1DyP6czDZ4ktbZB0hAgBlVcK0U+qpD3ag3Tqqpa5Q67rPw==}
     engines: {node: '>=6'}
-    dev: false
 
-  /@sentry/utils@5.22.3:
-    resolution: {integrity: sha512-AHNryXMBvIkIE+GQxTlmhBXD0Ksh+5w1SwM5qi6AttH+1qjWLvV6WB4+4pvVvEoS8t5F+WaVUZPQLmCCWp6zKw==}
+  '@sentry/utils@5.30.0':
+    resolution: {integrity: sha512-zaYmoH0NWWtvnJjC9/CBseXMtKHm/tm40sz3YfJRxeQjyzRqNQPgivpd9R/oDJCYj999mzdW382p/qi2ypjLww==}
     engines: {node: '>=6'}
-    dependencies:
-      '@sentry/types': 5.22.3
-      tslib: 1.14.1
-    dev: false
 
-  /core-js@3.6.5:
-    resolution: {integrity: sha512-vZVEEwZoIsI+vPEuoF9Iqf5H7/M3eeQqWlQnYa8FSKKePuYTf5MWnxb5SDAzCa60b3JBRS5g9b+Dq7b1y/RCrA==}
-    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
-    requiresBuild: true
-    dev: false
+  core-js@3.48.0:
+    resolution: {integrity: sha512-zpEHTy1fjTMZCKLHUZoVeylt9XrzaIN2rbPXEt0k+q7JE5CkCZdo6bNq55bn24a69CH7ErAVLKijxJja4fw+UQ==}
 
-  /custom-event-polyfill@1.0.7:
+  custom-event-polyfill@1.0.7:
     resolution: {integrity: sha512-TDDkd5DkaZxZFM8p+1I3yAlvM3rSr1wbrOliG4yJiwinMZN8z/iGL7BTlDkrJcYTmgUSb4ywVCc3ZaUtOtC76w==}
-    dev: false
 
-  /shr-buttons@2.0.3:
+  shr-buttons@2.0.3:
     resolution: {integrity: sha512-sPAgHiw4uaIt9TnxTfyZEedDChcldSVtnBHE44cpe/mSC7rqm4IEKZRLYqnVlTcGM+FSDNBPUNpSf50Q2ntd+w==}
-    dev: false
 
-  /tslib@1.14.1:
+  tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
-    dev: false
 
-  /url-polyfill@1.1.10:
-    resolution: {integrity: sha512-vSaPpaRgBrf41+Uky1myiSh6gpcbw8FpwHYnEy0abxndojOBnIs+yh/49gKYFLtUMP9qoNWjn6j9aUVy23Ie2A==}
-    dev: false
+  url-polyfill@1.1.14:
+    resolution: {integrity: sha512-p4f3TTAG6ADVF3mwbXw7hGw+QJyw5CnNGvYh5fCuQQZIiuKUswqcznyV3pGDP9j0TSmC4UvRKm8kl1QsX1diiQ==}
+
+snapshots:
+
+  '@sentry/browser@5.30.0':
+    dependencies:
+      '@sentry/core': 5.30.0
+      '@sentry/types': 5.30.0
+      '@sentry/utils': 5.30.0
+      tslib: 1.14.1
+
+  '@sentry/core@5.30.0':
+    dependencies:
+      '@sentry/hub': 5.30.0
+      '@sentry/minimal': 5.30.0
+      '@sentry/types': 5.30.0
+      '@sentry/utils': 5.30.0
+      tslib: 1.14.1
+
+  '@sentry/hub@5.30.0':
+    dependencies:
+      '@sentry/types': 5.30.0
+      '@sentry/utils': 5.30.0
+      tslib: 1.14.1
+
+  '@sentry/minimal@5.30.0':
+    dependencies:
+      '@sentry/hub': 5.30.0
+      '@sentry/types': 5.30.0
+      tslib: 1.14.1
+
+  '@sentry/types@5.30.0': {}
+
+  '@sentry/utils@5.30.0':
+    dependencies:
+      '@sentry/types': 5.30.0
+      tslib: 1.14.1
+
+  core-js@3.48.0: {}
+
+  custom-event-polyfill@1.0.7: {}
+
+  shr-buttons@2.0.3: {}
+
+  tslib@1.14.1: {}
+
+  url-polyfill@1.1.14: {}

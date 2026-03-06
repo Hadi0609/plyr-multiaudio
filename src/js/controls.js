@@ -244,8 +244,11 @@ const controls = {
       case 'play-large':
         attributes.class += ` ${this.config.classNames.control}--overlaid`;
         type = 'play';
+        props.toggle = true;
         props.label = 'play';
+        props.labelPressed = 'pause';
         props.icon = 'play';
+        props.iconPressed = 'pause';
         break;
 
       default:
@@ -1409,6 +1412,103 @@ const controls = {
 
     // Set attribute
     button.setAttribute('href', this.download);
+  },
+
+  // Create SVG element for seek overlay icons
+  createSeekSvg(direction) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('xmlns', ns);
+
+    const path = document.createElementNS(ns, 'path');
+    if (direction === 'rewind') {
+      path.setAttribute('d', 'M12.5 3C7.26 3 3 7.26 3 12.5S7.26 22 12.5 22c4.5 0 8.27-3.14 9.24-7.36l-1.93-.51C18.96 17.83 15.99 20 12.5 20 8.36 20 5 16.64 5 12.5S8.36 5 12.5 5c2.07 0 3.93.84 5.29 2.19L14 11h8V3l-2.64 2.64A9.47 9.47 0 0 0 12.5 3z');
+      path.setAttribute('transform', 'scale(-1,1) translate(-24,0)');
+    } else {
+      path.setAttribute('d', 'M12.5 3C7.26 3 3 7.26 3 12.5S7.26 22 12.5 22c4.5 0 8.27-3.14 9.24-7.36l-1.93-.51C18.96 17.83 15.99 20 12.5 20 8.36 20 5 16.64 5 12.5S8.36 5 12.5 5c2.07 0 3.93.84 5.29 2.19L14 11h8V3l-2.64 2.64A9.47 9.47 0 0 0 12.5 3z');
+    }
+    svg.appendChild(path);
+    return svg;
+  },
+
+  // Create the seek overlay buttons (rewind/forward on video surface)
+  createSeekOverlayButtons() {
+    if (!this.isVideo || !this.config.doubleClickToSeek) {
+      return;
+    }
+
+    const { seekTime } = this.config;
+
+    // Rewind overlay button
+    const rewindBtn = createElement('button', {
+      type: 'button',
+      class: `${this.config.classNames.control} ${this.config.classNames.seekOverlayButton} ${this.config.classNames.seekOverlayButton}--rewind`,
+      'data-plyr': 'seek-overlay-rewind',
+      'aria-label': `Rewind ${seekTime}s`,
+    });
+    const rewindIcon = createElement('div', { class: 'plyr__seek-icon' });
+    rewindIcon.appendChild(controls.createSeekSvg('rewind'));
+    rewindIcon.appendChild(createElement('span', {}, String(seekTime)));
+    rewindBtn.appendChild(rewindIcon);
+
+    // Forward overlay button
+    const forwardBtn = createElement('button', {
+      type: 'button',
+      class: `${this.config.classNames.control} ${this.config.classNames.seekOverlayButton} ${this.config.classNames.seekOverlayButton}--forward`,
+      'data-plyr': 'seek-overlay-forward',
+      'aria-label': `Forward ${seekTime}s`,
+    });
+    const forwardIcon = createElement('div', { class: 'plyr__seek-icon' });
+    forwardIcon.appendChild(controls.createSeekSvg('forward'));
+    forwardIcon.appendChild(createElement('span', {}, String(seekTime)));
+    forwardBtn.appendChild(forwardIcon);
+
+    this.elements.container.appendChild(rewindBtn);
+    this.elements.container.appendChild(forwardBtn);
+
+    this.elements.buttons.seekOverlayRewind = rewindBtn;
+    this.elements.buttons.seekOverlayForward = forwardBtn;
+  },
+
+  // Create the seek indicator overlays (shown on double-tap/double-click)
+  createSeekIndicators() {
+    if (!this.isVideo || !this.config.doubleClickToSeek) {
+      return;
+    }
+
+    const { seekTime } = this.config;
+    const className = this.config.classNames.seekIndicator;
+
+    // Rewind indicator
+    const rewindIndicator = createElement('div', {
+      class: `${className} ${className}--rewind`,
+    });
+    const rewindInner = createElement('div', {
+      class: `${className}__icon ${className}__icon--rewind`,
+    });
+    rewindInner.appendChild(controls.createSeekSvg('rewind'));
+    rewindInner.appendChild(createElement('span', {}, String(seekTime)));
+    rewindIndicator.appendChild(rewindInner);
+
+    // Forward indicator
+    const forwardIndicator = createElement('div', {
+      class: `${className} ${className}--forward`,
+    });
+    const forwardInner = createElement('div', {
+      class: `${className}__icon ${className}__icon--forward`,
+    });
+    forwardInner.appendChild(controls.createSeekSvg('forward'));
+    forwardInner.appendChild(createElement('span', {}, String(seekTime)));
+    forwardIndicator.appendChild(forwardInner);
+
+    this.elements.container.appendChild(rewindIndicator);
+    this.elements.container.appendChild(forwardIndicator);
+
+    this.elements.seekIndicators = {
+      rewind: rewindIndicator,
+      forward: forwardIndicator,
+    };
   },
 
   // Build the default HTML

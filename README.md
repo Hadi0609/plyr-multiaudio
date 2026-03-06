@@ -1,17 +1,22 @@
-| 🎉  | [Plyr is merging into Vidstack](https://github.com/sampotts/plyr/issues/2408) | 🎉  |
-| :-: | :---------------------------------------------------------------------------: | :-- |
+# plyr-multiaudio
 
-Plyr is a simple, lightweight, accessible and customizable HTML5, YouTube and Vimeo media player that supports [_modern_](#browser-support) browsers.
+An extended fork of [Plyr](https://github.com/sampotts/plyr) with **MPEG-DASH support**, **multiple audio/video track selection**, **double-click/tap to seek**, and improved touch controls.
 
-[Checkout the demo](https://plyr.io) - [Donate](#donate) - [Slack](https://bit.ly/plyr--chat)
+Based on Plyr v3.7.8 — a simple, lightweight, accessible and customizable HTML5, YouTube and Vimeo media player that supports [_modern_](#browser-support) browsers.
+
+[Original Plyr](https://plyr.io) - [Donate to Plyr](#donate) - [Plyr Slack](https://bit.ly/plyr--chat)
 
 [![npm version](https://badge.fury.io/js/plyr.svg)](https://badge.fury.io/js/plyr) [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/sampotts/plyr) [![Financial Contributors on Open Collective](https://opencollective.com/plyr/all/badge.svg?label=financial+contributors)](https://opencollective.com/plyr)
 
-[![Screenshot of Plyr](https://cdn.plyr.io/static/screenshot.webp)](https://plyr.io)
+[![Screenshot of Plyr](screenshots/Plyr-screenshort.png)](https://plyr.io)
 
 # Features
 
 - 📼 **HTML Video & Audio, YouTube & Vimeo** - support for the major formats
+- 🎞 **[MPEG-DASH (MPD)](#mpeg-dash)** - native dash.js integration for adaptive streaming with audio/video track selection
+- 🎵 **[Multiple Audio Tracks](#audio-tracks)** - switch between audio tracks (languages, commentary, etc.) in MPEG-DASH streams
+- 🎬 **[Multiple Video Tracks](#video-tracks)** - switch between video tracks in MPEG-DASH streams
+- 👆 **[Double-click / Double-tap to Seek](#double-click--double-tap-to-seek)** - YouTube-style left/right zone seeking with animated indicators
 - 💪 **Accessible** - full support for VTT captions and screen readers
 - 🔧 **[Customizable](#html)** - make the player look how you want with the markup you want
 - 😎 **Clean HTML** - uses the _right_ elements. `<input type="range">` for volume and `<progress>` for progress and well, `<button>`s for buttons. There's no
@@ -381,12 +386,12 @@ Options can be passed as an object to the constructor as above or as JSON in `da
 
 Note the single quotes encapsulating the JSON and double quotes on the object keys. Only string values need double quotes.
 
-| Option               | Type                       | Default                                                                                                                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| -------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`            | Boolean                    | `true`                                                                                                                         | Completely disable Plyr. This would allow you to do a User Agent check or similar to programmatically enable or disable Plyr for a certain UA. Example below.                                                                                                                                                                                                                                                                           |
-| `debug`              | Boolean                    | `false`                                                                                                                        | Display debugging information in the console                                                                                                                                                                                                                                                                                                                                                                                            |
-| `controls`           | Array, Function or Element | `['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen']` | If a function is passed, it is assumed your method will return either an element or HTML string for the controls. Three arguments will be passed to your function; `id` (the unique id for the player), `seektime` (the seektime step in seconds), and `title` (the media title). See [CONTROLS.md](CONTROLS.md) for more info on how the html needs to be structured.                                                                  |
-| `settings`           | Array                      | `['captions', 'quality', 'speed', 'loop']`                                                                                     | If the default controls are used, you can specify which settings to show in the menu                                                                                                                                                                                                                                                                                                                                                    |
+| Option                | Type                       | Default                                                                                                                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`             | Boolean                    | `true`                                                                                                                         | Completely disable Plyr. This would allow you to do a User Agent check or similar to programmatically enable or disable Plyr for a certain UA. Example below.                                                                                                                                                                                                                                                                           |
+| `debug`               | Boolean                    | `false`                                                                                                                        | Display debugging information in the console                                                                                                                                                                                                                                                                                                                                                                                            |
+| `controls`            | Array, Function or Element | `['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen']` | If a function is passed, it is assumed your method will return either an element or HTML string for the controls. Three arguments will be passed to your function; `id` (the unique id for the player), `seektime` (the seektime step in seconds), and `title` (the media title). See [CONTROLS.md](CONTROLS.md) for more info on how the html needs to be structured.                                                                  |
+| `settings`            | Array                      | `['captions', 'quality', 'speed', 'audioTrack', 'videoTrack']`                                                                 | If the default controls are used, you can specify which settings to show in the menu. This fork adds `'audioTrack'` and `'videoTrack'` as valid values for MPEG-DASH streams.                                                                                                                                                                                                                                                           |
 | `i18n`               | Object                     | See [defaults.js](/src/js/config/defaults.js)                                                                                  | Used for internationalization (i18n) of the text within the UI.                                                                                                                                                                                                                                                                                                                                                                         |
 | `loadSprite`         | Boolean                    | `true`                                                                                                                         | Load the SVG sprite specified as the `iconUrl` option (if a URL). If `false`, it is assumed you are handling sprite loading yourself.                                                                                                                                                                                                                                                                                                   |
 | `iconUrl`            | String                     | `null`                                                                                                                         | Specify a URL or path to the SVG sprite. See the [SVG section](#svg) for more info.                                                                                                                                                                                                                                                                                                                                                     |
@@ -395,13 +400,14 @@ Note the single quotes encapsulating the JSON and double quotes on the object ke
 | `autoplay`&sup2;     | Boolean                    | `false`                                                                                                                        | Autoplay the media on load. If the `autoplay` attribute is present on a `<video>` or `<audio>` element, this will be automatically set to true.                                                                                                                                                                                                                                                                                         |
 | `autopause`&sup1;    | Boolean                    | `true`                                                                                                                         | Only allow one player playing at once.                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `playsinline`&sup3;  | Boolean                    | `true`                                                                                                                         | Allow inline playback on iOS. Note this has no effect on iPadOS.                                                                                                                                                                                                                                                                                                                                                                        |
-| `seekTime`           | Number                     | `10`                                                                                                                           | The time, in seconds, to seek when a user hits fast forward or rewind.                                                                                                                                                                                                                                                                                                                                                                  |
-| `volume`             | Number                     | `1`                                                                                                                            | A number, between 0 and 1, representing the initial volume of the player.                                                                                                                                                                                                                                                                                                                                                               |
-| `muted`              | Boolean                    | `false`                                                                                                                        | Whether to start playback muted. If the `muted` attribute is present on a `<video>` or `<audio>` element, this will be automatically set to true.                                                                                                                                                                                                                                                                                       |
-| `clickToPlay`        | Boolean                    | `true`                                                                                                                         | Click (or tap) of the video container will toggle play/pause.                                                                                                                                                                                                                                                                                                                                                                           |
-| `disableContextMenu` | Boolean                    | `true`                                                                                                                         | Disable right click menu on video to <em>help</em> as very primitive obfuscation to prevent downloads of content.                                                                                                                                                                                                                                                                                                                       |
-| `hideControls`       | Boolean                    | `true`                                                                                                                         | Hide video controls automatically after 2s of no mouse or focus movement, on control element blur (tab out), on playback start or entering fullscreen. As soon as the mouse is moved, a control element is focused or playback is paused, the controls reappear instantly.                                                                                                                                                              |
-| `resetOnEnd`         | Boolean                    | false                                                                                                                          | Reset the playback to the start once playback is complete.                                                                                                                                                                                                                                                                                                                                                                              |
+| `seekTime`            | Number                     | `10`                                                                                                                           | The time, in seconds, to seek when a user hits fast forward or rewind.                                                                                                                                                                                                                                                                                                                                                                  |
+| `volume`              | Number                     | `1`                                                                                                                            | A number, between 0 and 1, representing the initial volume of the player.                                                                                                                                                                                                                                                                                                                                                               |
+| `muted`               | Boolean                    | `false`                                                                                                                        | Whether to start playback muted. If the `muted` attribute is present on a `<video>` or `<audio>` element, this will be automatically set to true.                                                                                                                                                                                                                                                                                       |
+| `clickToPlay`         | Boolean                    | `true`                                                                                                                         | Click (or tap) of the video container will toggle play/pause.                                                                                                                                                                                                                                                                                                                                                                           |
+| `doubleClickToSeek`   | Boolean                    | `true`                                                                                                                         | **[New]** Enable double-click (desktop) or double-tap (mobile) on the left/right third of the video to seek backward/forward by `seekTime` seconds. Accumulates on repeated taps within 600ms. Shows an animated seek indicator overlay. Setting this to `false` disables the gesture. See [Double-click / Double-tap to Seek](#double-click--double-tap-to-seek).                                                                      |
+| `disableContextMenu`  | Boolean                    | `true`                                                                                                                         | Disable right click menu on video to <em>help</em> as very primitive obfuscation to prevent downloads of content.                                                                                                                                                                                                                                                                                                                       |
+| `hideControls`        | Boolean                    | `true`                                                                                                                         | Hide video controls automatically after 2s (desktop) or 3s (touch) of no mouse or focus movement, on control element blur (tab out), on playback start or entering fullscreen. As soon as the mouse is moved, a control element is focused or playback is paused, the controls reappear instantly. On touch devices, tapping outside the controls while playing will hide them immediately.                                             |
+| `resetOnEnd`          | Boolean                    | `false`                                                                                                                        | Reset the playback to the start once playback is complete.                                                                                                                                                                                                                                                                                                                                                                              |
 | `keyboard`           | Object                     | `{ focused: true, global: false }`                                                                                             | Enable [keyboard shortcuts](#shortcuts) for focused players only or globally                                                                                                                                                                                                                                                                                                                                                            |
 | `tooltips`           | Object                     | `{ controls: false, seek: true }`                                                                                              | `controls`: Display control labels as tooltips on `:hover` & `:focus` (by default, the labels are screen reader only). `seek`: Display a seek tooltip to indicate on click where the media would seek to.                                                                                                                                                                                                                               |
 | `duration`           | Number                     | `null`                                                                                                                         | Specify a custom duration for media.                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -414,15 +420,17 @@ Note the single quotes encapsulating the JSON and double quotes on the object ke
 | `ratio`              | String                     | `null`                                                                                                                         | Force an aspect ratio for all videos. The format is `'w:h'` - e.g. `'16:9'` or `'4:3'`. If this is not specified then the default for HTML5 and Vimeo is to use the native resolution of the video. As dimensions are not available from YouTube via SDK, 16:9 is forced as a sensible default.                                                                                                                                         |
 | `storage`            | Object                     | `{ enabled: true, key: 'plyr' }`                                                                                               | `enabled`: Allow use of local storage to store user settings. `key`: The key name to use.                                                                                                                                                                                                                                                                                                                                               |
 | `speed`              | Object                     | `{ selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 4] }`                                                              | `selected`: The default speed for playback. `options`: The speed options to display in the UI. YouTube and Vimeo will ignore any options outside of the 0.5-2 range, so options outside of this range will be hidden automatically.                                                                                                                                                                                                     |
-| `quality`            | Object                     | `{ default: 576, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] }`                                           | `default` is the default quality level (if it exists in your sources). `options` are the options to display. This is used to filter the available sources.                                                                                                                                                                                                                                                                              |
-| `loop`               | Object                     | `{ active: false }`                                                                                                            | `active`: Whether to loop the current video. If the `loop` attribute is present on a `<video>` or `<audio>` element, this will be automatically set to true This is an object to support future functionality.                                                                                                                                                                                                                          |
-| `ads`                | Object                     | `{ enabled: false, publisherId: '', tagUrl: '' }`                                                                              | `enabled`: Whether to enable advertisements. `publisherId`: Your unique [vi.ai](https://vi.ai/publisher-video-monetization/?aid=plyrio) publisher ID. `tagUrl` is a URL for a custom VAST tag if you're not using Vi.                                                                                                                                                                                                                   |
-| `urls`               | Object                     | See source.                                                                                                                    | If you wish to override any API URLs then you can do so here. You can also set a custom download URL for the download button.                                                                                                                                                                                                                                                                                                           |
-| `vimeo`              | Object                     | `{ byline: false, portrait: false, title: false, speed: true, transparent: false }`                                            | See [Vimeo embed options](https://github.com/vimeo/player.js/#embed-options). Some are set automatically based on other config options, namely: `loop`, `autoplay`, `muted`, `gesture`, `playsinline`                                                                                                                                                                                                                                   |
-| `youtube`            | Object                     | `{ noCookie: false, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }`                                               | See [YouTube embed options](https://developers.google.com/youtube/player_parameters#Parameters). The only custom option is `noCookie` to use an alternative to YouTube that doesn't use cookies (useful for GDPR, etc). Some are set automatically based on other config options, namely: `autoplay`, `hl`, `controls`, `disablekb`, `playsinline`, `cc_load_policy`, `cc_lang_pref`, `widget_referrer`                                 |
-| `previewThumbnails`  | Object                     | `{ enabled: false, src: '' }`                                                                                                  | `enabled`: Whether to enable the preview thumbnails (they must be generated by you). `src` must be either a string or an array of strings representing URLs for the VTT files containing the image URL(s). Learn more about [preview thumbnails](#preview-thumbnails) below.                                                                                                                                                            |
-| `mediaMetadata`      | Object                     | `{ title: '', artist: '', album: '', artwork: [] }`                                                                            | The [MediaMetadata](https://developer.mozilla.org/en-US/docs/Web/API/MediaMetadata) interface of the Media Session API allows a web page to provide rich media metadata for display in a platform UI.                                                                                                                                                                                                                                   |
-| `markers`            | Object                     | `{ enabled: false, points: [] }`                                                                                               | `enabled`: Whether to enable markers. `points` is an array of `{ time: number; label: string; }` objects where `time` represents the marker position in seconds and `label` is the HTML string to be displayed.                                                                                                                                                                                                                         |
+| `quality`             | Object                     | `{ default: 576, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] }`                                           | `default` is the default quality level (if it exists in your sources). `options` are the options to display. This is used to filter the available sources. For MPEG-DASH, an additional `'Auto'` option (`Infinity`) is automatically added, and `forced`/`onChange` callbacks are supported.                                                                                                                                            |
+| `audioTrack`          | Object                     | `{ options: [], onChange: null, showUnrecognizedLabel: false }`                                                                 | **[New]** MPEG-DASH audio track selection. `options`: array of available track IDs (populated automatically). `onChange`: callback fired when the audio track changes `(trackId) => {}`. `showUnrecognizedLabel`: whether to show a label for tracks with no recognized metadata. See [Audio Tracks](#audio-tracks).                                                                                                                    |
+| `videoTrack`          | Object                     | `{ options: [], onChange: null }`                                                                                               | **[New]** MPEG-DASH video track selection. `options`: array of available track IDs (populated automatically). `onChange`: callback fired when the video track changes `(trackId) => {}`. See [Video Tracks](#video-tracks).                                                                                                                                                                                                             |
+| `loop`                | Object                     | `{ active: false }`                                                                                                            | `active`: Whether to loop the current video. If the `loop` attribute is present on a `<video>` or `<audio>` element, this will be automatically set to true This is an object to support future functionality.                                                                                                                                                                                                                          |
+| `ads`                 | Object                     | `{ enabled: false, publisherId: '', tagUrl: '' }`                                                                              | `enabled`: Whether to enable advertisements. `publisherId`: Your unique [vi.ai](https://vi.ai/publisher-video-monetization/?aid=plyrio) publisher ID. `tagUrl` is a URL for a custom VAST tag if you're not using Vi.                                                                                                                                                                                                                   |
+| `urls`                | Object                     | See source.                                                                                                                    | If you wish to override any API URLs then you can do so here. You can also set a custom download URL for the download button.                                                                                                                                                                                                                                                                                                           |
+| `vimeo`               | Object                     | `{ byline: false, portrait: false, title: false, speed: true, transparent: false }`                                            | See [Vimeo embed options](https://github.com/vimeo/player.js/#embed-options). Some are set automatically based on other config options, namely: `loop`, `autoplay`, `muted`, `gesture`, `playsinline`                                                                                                                                                                                                                                   |
+| `youtube`             | Object                     | `{ noCookie: false, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }`                                               | See [YouTube embed options](https://developers.google.com/youtube/player_parameters#Parameters). The only custom option is `noCookie` to use an alternative to YouTube that doesn't use cookies (useful for GDPR, etc). Some are set automatically based on other config options, namely: `autoplay`, `hl`, `controls`, `disablekb`, `playsinline`, `cc_load_policy`, `cc_lang_pref`, `widget_referrer`                                 |
+| `previewThumbnails`   | Object                     | `{ enabled: false, src: '' }`                                                                                                  | `enabled`: Whether to enable the preview thumbnails (they must be generated by you). `src` must be either a string or an array of strings representing URLs for the VTT files containing the image URL(s). Learn more about [preview thumbnails](#preview-thumbnails) below.                                                                                                                                                            |
+| `mediaMetadata`       | Object                     | `{ title: '', artist: '', album: '', artwork: [] }`                                                                            | The [MediaMetadata](https://developer.mozilla.org/en-US/docs/Web/API/MediaMetadata) interface of the Media Session API allows a web page to provide rich media metadata for display in a platform UI.                                                                                                                                                                                                                                   |
+| `markers`             | Object                     | `{ enabled: false, points: [] }`                                                                                               | `enabled`: Whether to enable markers. `points` is an array of `{ time: number; label: string; }` objects where `time` represents the marker position in seconds and `label` is the HTML string to be displayed.                                                                                                                                                                                                                         |
 
 1. Vimeo only
 2. Autoplay is generally not recommended as it is seen as a negative user experience. It is also disabled in many browsers. Before raising issues, do your homework. More info can be found here:
@@ -526,7 +534,9 @@ player.fullscreen.active; // false;
 | `muted`              | ✓      | ✓      | Gets or sets the muted state of the player. The setter accepts a boolean.                                                                                                                                                                                                                                                              |
 | `hasAudio`           | ✓      | -      | Returns a boolean indicating if the current media has an audio track.                                                                                                                                                                                                                                                                  |
 | `speed`              | ✓      | ✓      | Gets or sets the speed for the player. The setter accepts a value in the options specified in your config. Generally the minimum should be 0.5.                                                                                                                                                                                        |
-| `quality`&sup1;      | ✓      | ✓      | Gets or sets the quality for the player. The setter accepts a value from the options specified in your config.                                                                                                                                                                                                                         |
+| `quality`&sup1;       | ✓      | ✓      | Gets or sets the quality for the player. The setter accepts a value from the options specified in your config. For MPEG-DASH, `Infinity` selects "Auto" (ABR).                                                                                                                                                                                          |
+| `audioTrack`&sup2;    | ✓      | ✓      | **[New]** Gets or sets the active audio track by track ID. The setter triggers the `audiotrackchange` event and invokes `config.audioTrack.onChange`. MPEG-DASH only.                                                                                                                                                                                  |
+| `videoTrack`&sup2;    | ✓      | ✓      | **[New]** Gets or sets the active video track by track ID. The setter triggers the `videotrackchange` event and invokes `config.videoTrack.onChange`. MPEG-DASH only.                                                                                                                                                                                  |
 | `loop`               | ✓      | ✓      | Gets or sets the current loop state of the player. The setter accepts a boolean.                                                                                                                                                                                                                                                       |
 | `source`             | ✓      | ✓      | Gets or sets the current source for the player. The setter accepts an object. See [source setter](#the-source-setter) below for examples.                                                                                                                                                                                              |
 | `poster`             | ✓      | ✓      | Gets or sets the current poster image for the player. The setter accepts a string; the URL for the updated poster image.                                                                                                                                                                                                               |
@@ -541,6 +551,7 @@ player.fullscreen.active; // false;
 | `download`           | ✓      | ✓      | Gets or sets the URL for the download button. The setter accepts a string containing a valid absolute URL.                                                                                                                                                                                                                             |
 
 1. HTML5 only
+2. MPEG-DASH only
 
 ### The `.source` setter
 
@@ -703,9 +714,154 @@ player.on('ready', (event) => {
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `statechange` | The state of the player has changed. The code can be accessed via `event.detail.code`. Possible values are `-1`: Unstarted, `0`: Ended, `1`: Playing, `2`: Paused, `3`: Buffering, `5`: Video cued. See the [YouTube Docs](https://developers.google.com/youtube/iframe_api_reference#onStateChange) for more information. |
 
+### MPEG-DASH only
+
+| Event Type              | Description                                                                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `qualitychange`         | Fired when the active quality level changes. `event.detail.quality` contains the new quality height in pixels (or `Infinity` for auto).                       |
+| `audiotrackchange`      | Fired when the active audio track changes. `event.detail.audioTrack` contains the new track ID.                                                               |
+| `videotrackchange`      | Fired when the active video track changes. `event.detail.videoTrack` contains the new track ID.                                                               |
+| `qualitylistupdate`     | Fired when the list of available quality levels changes (e.g. on period switch). `event.detail.list` contains an array of quality heights.                    |
+| `audiotracklistupdate`  | Fired when the list of available audio tracks changes. `event.detail.list` contains an array of track IDs.                                                    |
+| `videotracklistupdate`  | Fired when the list of available video tracks changes. `event.detail.list` contains an array of track IDs.                                                    |
+| `audiotracklabelsupdate`| Fired when human-readable audio track labels are resolved. `event.detail.list` is an object mapping track IDs to label strings.                               |
+| `videotracklabelsupdate`| Fired when human-readable video track labels are resolved. `event.detail.list` is an object mapping track IDs to label strings.                               |
+
 _Note:_ These events also bubble up the DOM. The event target will be the container element.
 
 Some event details borrowed from [MDN](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events).
+
+# MPEG-DASH
+
+This fork includes built-in support for **MPEG-DASH** adaptive streaming via [dash.js](https://github.com/Dash-Industry-Forum/dash.js). Initialize dash.js first, configure the player options dynamically inside `streamInitialized`, then pass the options to `new Plyr()`.
+
+## Setup with dash.js
+
+```js
+const videoEl = document.getElementById('player');
+const dash = dashjs.MediaPlayer().create();
+
+// Initialize dash (autoPlay = false; Plyr will handle playback)
+dash.initialize(videoEl, 'https://example.com/stream.mpd', false);
+
+dash.updateSettings({
+  streaming: {
+    abr: {
+      autoSwitchBitrate: {
+        audio: true,   // audio ABR on
+        video: false,  // video quality controlled manually via Plyr UI
+      },
+    },
+    fastSwitchEnabled: true,
+  },
+});
+
+// Optional: DRM (Widevine / PlayReady)
+if (drm) {
+  dash.setProtectionData({
+    'com.widevine.alpha': {
+      serverURL: wv_la_url,
+      httpRequestHeaders: license_headers,
+    },
+    'com.microsoft.playready': {
+      serverURL: pr_la_url,
+      httpRequestHeaders: license_headers,
+    },
+  });
+}
+
+const playerOptions = {
+  settings: ['captions', 'quality', 'speed', 'audioTrack'],
+  // ... other Plyr options
+};
+
+// Build quality/audio options once the manifest is parsed
+dash.on('streamInitialized', function () {
+  // Quality levels (heights in px, e.g. 1080, 720, 480 …)
+  const availableQualities = dash.getBitrateInfoListFor('video').map(l => l.height);
+
+  playerOptions.quality = {
+    default: availableQualities[0],
+    options: availableQualities,
+    forced: true,
+    onChange: (newQuality) => {
+      dash.getBitrateInfoListFor('video').forEach((level, idx) => {
+        if (level.height === newQuality) {
+          dash.setQualityFor('video', level.qualityIndex);
+        }
+      });
+    },
+  };
+
+  // Audio tracks – only add the selector when there are multiple tracks
+  const availableAudios = dash.getTracksFor('audio').map(t => ({
+    index: t.index,
+    lang: t.lang,
+  }));
+
+  if (availableAudios.length > 1) {
+    playerOptions.audioTrack = {
+      options: availableAudios.map(a => a.lang),
+      selected: availableAudios[0].lang,  // default to first track
+      showUnrecognizedLabel: true,
+      onChange: (newLang) => {
+        const track = dash.getTracksFor('audio').find(t => t.lang === newLang);
+        if (track) dash.setCurrentTrack(track);
+      },
+    };
+
+    // Optional: pass human-readable i18n labels for each language code
+    playerOptions.i18n = {
+      audioTrackLabel: generateLanguageLabels(availableAudios.map(a => a.lang)),
+    };
+  }
+
+  // Now create Plyr – dash is already attached to the video element
+  const player = new Plyr(videoEl, playerOptions);
+});
+
+// Must be called after all event handlers are registered
+dash.attachView(videoEl);
+```
+
+> **Why `streamInitialized`?** The quality and audio track lists aren't available until dash.js has parsed the MPD manifest. Building `playerOptions` inside this callback ensures Plyr always receives accurate options for the actual stream.
+
+## Audio Tracks
+
+For MPEG-DASH streams that include multiple audio adaptations (e.g. different languages or commentary tracks), the player automatically builds an **Audio Track** menu in the settings panel. Track IDs are resolved from the manifest; human-readable labels are derived from DASH track metadata and the browser locale.
+
+```js
+// Switch programmatically after player is created
+player.audioTrack = 'en'; // by language/track ID
+
+// Listen to changes
+player.on('audiotrackchange', (event) => {
+  console.log('New audio track:', event.detail.audioTrack);
+});
+
+// React to available tracks changing (e.g. on period switch)
+player.on('audiotracklistupdate', (event) => {
+  console.log('Available tracks:', event.detail.list);
+});
+```
+
+## Video Tracks
+
+Similarly, multiple **video** adaptations can be exposed and switched via the settings menu or API.
+
+```js
+// Switch programmatically
+player.videoTrack = 'main';
+
+player.on('videotrackchange', (event) => {
+  console.log('New video track:', event.detail.videoTrack);
+});
+```
+
+## Quality & ABR
+
+Quality levels are read from `getBitrateInfoListFor('video')` at `streamInitialized` time. Selecting **Auto** (`Infinity`) re-enables dash.js ABR. Selecting a specific height (e.g. `1080`) locks to that quality tier via `setQualityFor('video', qualityIndex)`.
+
 
 # Embeds
 
@@ -736,6 +892,32 @@ document then the shortcuts will work when any element has focus, apart from an 
 | `F`        | Toggle fullscreen                      |
 | `C`        | Toggle captions                        |
 | `L`        | Toggle loop                            |
+
+# Double-click / Double-tap to Seek
+
+This fork adds **YouTube-style seek zones** to the video player. When `doubleClickToSeek` is `true` (the default), the video area is divided into three zones:
+
+- **Left third** — double-click or double-tap to rewind by `seekTime` seconds
+- **Center third** — no seek action (single click still toggles play/pause)
+- **Right third** — double-click or double-tap to fast-forward by `seekTime` seconds
+
+### Accumulation
+
+Tapping the same zone multiple times within **600ms** accumulates the seek amount. For example, three rapid double-taps on the right zone would seek `+30s` (with the default `seekTime` of 10). An animated indicator shows the total accumulated seek time.
+
+### Touch behavior
+
+- On touch devices, the `touchend` native handler is used (not the synthetic `dblclick` generated by the browser) to avoid double-counting.
+- Taps that land on the seek overlay buttons (`seek-overlay-rewind` / `seek-overlay-forward`) are excluded and handled separately by those buttons.
+
+### Configuration
+
+```js
+const player = new Plyr('#player', {
+  doubleClickToSeek: true, // default
+  seekTime: 10,            // seconds per double-tap
+});
+```
 
 # Preview thumbnails
 

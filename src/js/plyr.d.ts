@@ -548,6 +548,12 @@ declare namespace Plyr {
      * Markers Options
      */
     markers?: MarkersOptions;
+
+    /**
+     * Enable double-click/double-tap to seek (YouTube-style). When enabled, double-clicking/tapping the left or right
+     * side of the video will rewind/forward by seekTime. Default: true.
+     */
+    doubleClickToSeek?: boolean;
   }
 
   interface QualityOptions {
@@ -648,12 +654,18 @@ declare namespace Plyr {
       restart?: HTMLButtonElement;
       rewind?: HTMLButtonElement;
       settings?: HTMLButtonElement;
+      seekOverlayRewind?: HTMLButtonElement;
+      seekOverlayForward?: HTMLButtonElement;
     };
     captions: HTMLElement | null;
     container: HTMLElement | null;
     controls: HTMLElement | null;
     fullscreen: HTMLElement | null;
     wrapper: HTMLElement | null;
+    seekIndicators?: {
+      rewind: HTMLElement;
+      forward: HTMLElement;
+    };
   }
 
   interface SourceInfo {
